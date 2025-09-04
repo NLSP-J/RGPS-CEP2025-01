@@ -137,6 +137,7 @@ async def main():
                         game_state = 2
                     elif event.key == pg.K_BACKSPACE:
                         player.name = player.name[:-1]
+            await asyncio.sleep(0)
 
 
         if game_state == 2:
@@ -215,3 +216,4 @@ async def main():
     pg.quit()
 
 asyncio.run(main())
+
