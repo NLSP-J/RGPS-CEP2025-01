@@ -117,35 +117,35 @@ def reset_game():
 
 
 # ---------------- GET PLAYER NAME ----------------
-# def get_player_name():
-#     name = ""
-#     entering = True
-#     while entering:
-#         screen.fill(WHITE)
-#         text = input_font.render("Enter Your Name: " + name, True, BLACK)
-#         screen.blit(text, (WIN_WIDTH // 2 - 200, WIN_HEIGHT // 2))
-#         pg.display.flip()
-#         for event in pg.event.get():
-#             if event.type == pg.QUIT:
-#                 pg.quit()
-#                 exit()
-#             if event.type == pg.KEYDOWN:
-#                 if event.key == pg.K_RETURN and name.strip() != "":
-#                     entering = False
-#                     break
-#                 elif event.key == pg.K_BACKSPACE:
-#                     name = name[:-1]
-#                 else:
-#                     if len(name) < 10:
-#                         name += event.unicode
-#     return name
+def get_player_name():
+    name = ""
+    entering = True
+    while entering:
+        screen.fill(WHITE)
+        text = input_font.render("Enter Your Name: " + name, True, BLACK)
+        screen.blit(text, (WIN_WIDTH // 2 - 200, WIN_HEIGHT // 2))
+        pg.display.flip()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                exit()
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_RETURN and name.strip() != "":
+                    entering = False
+                    break
+                elif event.key == pg.K_BACKSPACE:
+                    name = name[:-1]
+                # else:
+                #     if len(name) < 10:
+                #         name += event.unicode
+    return name
 
 
 # ---------------- MAIN ----------------
 running = True
 
 async def main():
-    # player_name = get_player_name()
+    player_name = get_player_name()
     game = reset_game()
     
     global running
@@ -227,5 +227,6 @@ async def main():
 
 
 asyncio.run(main())
+
 
 
