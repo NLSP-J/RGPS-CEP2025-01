@@ -28,7 +28,7 @@ bg_image = pg.image.load("./assets/images/background.png")
 bg_image = pg.transform.scale(bg_image, (WIN_WIDTH, WIN_HEIGHT))
 
 LEADERBOARD_FILE = "leaderboard.txt"
-
+game_state = 1
 
 # ---------------- PLAYER ----------------
 class Player:
@@ -38,6 +38,7 @@ class Player:
         self.image = pg.transform.scale(player_image_original, (self.size, self.size))
         self.pos = [WIN_WIDTH // 2 - self.size // 2, WIN_HEIGHT - self.size]
         self.lives = 3
+        self.name = ""
 
     def draw(self):
         screen.blit(self.image, self.pos)
@@ -83,14 +84,11 @@ class FallingObject:
 
 
 # ---------------- GAME ----------------
-def reset_game():
-    return {
-        "player": Player(),
+game = {"player": Player(),
         "objects": [],
         "score": 0,
         "fall_speed": 8,
-        "game_over": False,
-    }
+        "game_over": False}
 
 
 # def load_leaderboard():
@@ -116,117 +114,104 @@ def reset_game():
 #             f.write(f"{n},{s}\n")
 
 
-# ---------------- GET PLAYER NAME ----------------
-def get_player_name():
-    name = ""
-    entering = True
-    while entering:
-        screen.fill(WHITE)
-        text = input_font.render("Enter Your Name: " + name, True, BLACK)
-        screen.blit(text, (WIN_WIDTH // 2 - 200, WIN_HEIGHT // 2))
-        pg.display.flip()
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                pg.quit()
-                exit()
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_RETURN and name.strip() != "":
-                    entering = False
-                    break
-                elif event.key == pg.K_BACKSPACE:
-                    name = name[:-1]
-                # else:
-                #     if len(name) < 10:
-                #         name += event.unicode
-    return name
-
-
 # ---------------- MAIN ----------------
 running = True
 
 async def main():
-    player_name = get_player_name()
-    game = reset_game()
     
-    global running
-    
+    global running, game, game_state
+
     while running:
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                running = False
-            elif game["game_over"] and event.type == pg.KEYDOWN:
-                running = False
 
-        # Draw background
-        screen.blit(bg_image, (0, 0))
-
-        if not game["game_over"]:
+        if game_state == 1:
             player = game["player"]
-            player.draw()
+            screen.fill(WHITE)
+            text = input_font.render(f"Enter Your Name: {player.name}", True, BLACK)
+            screen.blit(text, (WIN_WIDTH // 2 - 200, WIN_HEIGHT // 2))
+            pg.display.flip()
+            for event in pg.event.get():
+                if event.type == pg.TEXTINPUT and len(player.name) < 10:
+                    player.name += event.text
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_RETURN and player.name.strip() != "":
+                        game_state = 2
+                    elif event.key == pg.K_BACKSPACE:
+                        player.name = player.name[:-1]
 
-            # Smooth movement
-            keys = pg.key.get_pressed()
-            if keys[pg.K_LEFT]:
-                player.move(-player.speed // 2)
-            if keys[pg.K_RIGHT]:
-                player.move(player.speed // 2)
 
-            # Score + lives display
-            score_text = font.render(f"Score: {game['score']}", True, BLACK)
-            lives_text = font.render(f"Lives: {player.lives}", True, RED)
-            screen.blit(score_text, (20, 20))
-            screen.blit(lives_text, (20, 60))
+        if game_state == 2:
 
-            # Spawn objects
-            if len(game["objects"]) < 10 and random.random() < 0.05:
-                if random.random() < 0.1:
-                    game["objects"].append(FallingObject("live"))
-                else:
-                    game["objects"].append(FallingObject("normal"))
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
+                elif game["game_over"] and event.type == pg.KEYDOWN:
+                    running = False
 
-            # Update objects
-            for obj in game["objects"][:]:
-                obj.update(game["fall_speed"])
-                if obj.off_screen():
-                    game["objects"].remove(obj)
-                    game["score"] += 1
-                    game["fall_speed"] += 0.15
-                    if game["score"] % 5 == 0:
-                        player.grow(10)
+            # Draw background
+            screen.blit(bg_image, (0, 0))
 
-            # Collision
-            for obj in game["objects"][:]:
-                if player.get_rect().colliderect(obj.get_rect()):
-                    if obj.kind == "normal":
-                        player.lives -= 1
-                    elif obj.kind == "live":
-                        player.lives += 1
-                    game["objects"].remove(obj)
-                    if player.lives <= 0:
-                        game["game_over"] = True
-                        # save_leaderboard(player_name, game["score"])
+            if not game["game_over"]:
+                player.draw()
 
-        else:
-            text = font.render(f"GAME OVER! Final Score: {game['score']}", True, BLACK)
-            screen.blit(text, (WIN_WIDTH // 2 - 150, WIN_HEIGHT // 2))
+                # Smooth movement
+                keys = pg.key.get_pressed()
+                if keys[pg.K_LEFT]:
+                    player.move(-player.speed // 2)
+                if keys[pg.K_RIGHT]:
+                    player.move(player.speed // 2)
 
-            # Show top scores
-            # leaderboard = load_leaderboard()
-            # for i, (n, s) in enumerate(leaderboard):
-            #     lb_text = font.render(f"{i+1}. {n}: {s}", True, RED)
-            #     screen.blit(lb_text, (WIN_WIDTH // 2 - 100, WIN_HEIGHT // 2 + 40 + i*30))
+                # Score + lives display
+                score_text = font.render(f"Score: {game['score']}", True, BLACK)
+                lives_text = font.render(f"Lives: {player.lives}", True, RED)
+                screen.blit(score_text, (20, 20))
+                screen.blit(lives_text, (20, 60))
 
-            text2 = font.render("Press any key to exit", True, RED)
-            screen.blit(text2, (WIN_WIDTH // 2 - 140, WIN_HEIGHT // 2 + 200))
+                # Spawn objects
+                if len(game["objects"]) < 10 and random.random() < 0.05:
+                    if random.random() < 0.1:
+                        game["objects"].append(FallingObject("live"))
+                    else:
+                        game["objects"].append(FallingObject("normal"))
 
-        pg.display.flip()
-        clock.tick(30)
-        await asyncio.sleep(0)
+                # Update objects
+                for obj in game["objects"][:]:
+                    obj.update(game["fall_speed"])
+                    if obj.off_screen():
+                        game["objects"].remove(obj)
+                        game["score"] += 1
+                        game["fall_speed"] += 0.15
+                        if game["score"] % 5 == 0:
+                            player.grow(10)
+
+                # Collision
+                for obj in game["objects"][:]:
+                    if player.get_rect().colliderect(obj.get_rect()):
+                        if obj.kind == "normal":
+                            player.lives -= 1
+                        elif obj.kind == "live":
+                            player.lives += 1
+                        game["objects"].remove(obj)
+                        if player.lives <= 0:
+                            game["game_over"] = True
+                            # save_leaderboard(player_name, game["score"])
+
+            else:
+                text = font.render(f"GAME OVER! Final Score: {game['score']}", True, BLACK)
+                screen.blit(text, (WIN_WIDTH // 2 - 150, WIN_HEIGHT // 2))
+
+                # Show top scores
+                # leaderboard = load_leaderboard()
+                # for i, (n, s) in enumerate(leaderboard):
+                #     lb_text = font.render(f"{i+1}. {n}: {s}", True, RED)
+                #     screen.blit(lb_text, (WIN_WIDTH // 2 - 100, WIN_HEIGHT // 2 + 40 + i*30))
+
+                text2 = font.render("Press any key to exit", True, RED)
+                screen.blit(text2, (WIN_WIDTH // 2 - 140, WIN_HEIGHT // 2 + 200))
+
+            pg.display.flip()
+            clock.tick(30)
+            await asyncio.sleep(0)
 
     pg.quit()
 
-
 asyncio.run(main())
-
-
-
