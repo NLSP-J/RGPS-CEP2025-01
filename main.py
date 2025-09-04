@@ -93,27 +93,27 @@ def reset_game():
     }
 
 
-def load_leaderboard():
-    # if not os.path.exists(LEADERBOARD_FILE):
-    #     return []
-    with open(LEADERBOARD_FILE, "r") as f:
-        lines = f.readlines()
-    leaderboard = []
-    for line in lines:
-        name, score = line.strip().split(",")
-        leaderboard.append((name, int(score)))
-    leaderboard.sort(key=lambda x: x[1], reverse=True)
-    return leaderboard[:5]  # top 5
+# def load_leaderboard():
+#     # if not os.path.exists(LEADERBOARD_FILE):
+#     #     return []
+#     with open(LEADERBOARD_FILE, "r") as f:
+#         lines = f.readlines()
+#     leaderboard = []
+#     for line in lines:
+#         name, score = line.strip().split(",")
+#         leaderboard.append((name, int(score)))
+#     leaderboard.sort(key=lambda x: x[1], reverse=True)
+#     return leaderboard[:5]  # top 5
 
 
-def save_leaderboard(name, score):
-    leaderboard = load_leaderboard()
-    leaderboard.append((name, score))
-    leaderboard.sort(key=lambda x: x[1], reverse=True)
-    leaderboard = leaderboard[:5]
-    with open(LEADERBOARD_FILE, "w") as f:
-        for n, s in leaderboard:
-            f.write(f"{n},{s}\n")
+# def save_leaderboard(name, score):
+#     leaderboard = load_leaderboard()
+#     leaderboard.append((name, score))
+#     leaderboard.sort(key=lambda x: x[1], reverse=True)
+#     leaderboard = leaderboard[:5]
+#     with open(LEADERBOARD_FILE, "w") as f:
+#         for n, s in leaderboard:
+#             f.write(f"{n},{s}\n")
 
 
 # ---------------- GET PLAYER NAME ----------------
@@ -202,17 +202,17 @@ async def main():
                     game["objects"].remove(obj)
                     if player.lives <= 0:
                         game["game_over"] = True
-                        save_leaderboard(player_name, game["score"])
+                        # save_leaderboard(player_name, game["score"])
 
         else:
             text = font.render(f"GAME OVER! Final Score: {game['score']}", True, BLACK)
             screen.blit(text, (WIN_WIDTH // 2 - 150, WIN_HEIGHT // 2))
 
             # Show top scores
-            leaderboard = load_leaderboard()
-            for i, (n, s) in enumerate(leaderboard):
-                lb_text = font.render(f"{i+1}. {n}: {s}", True, RED)
-                screen.blit(lb_text, (WIN_WIDTH // 2 - 100, WIN_HEIGHT // 2 + 40 + i*30))
+            # leaderboard = load_leaderboard()
+            # for i, (n, s) in enumerate(leaderboard):
+            #     lb_text = font.render(f"{i+1}. {n}: {s}", True, RED)
+            #     screen.blit(lb_text, (WIN_WIDTH // 2 - 100, WIN_HEIGHT // 2 + 40 + i*30))
 
             text2 = font.render("Press any key to exit", True, RED)
             screen.blit(text2, (WIN_WIDTH // 2 - 140, WIN_HEIGHT // 2 + 200))
@@ -222,5 +222,6 @@ async def main():
         await asyncio.sleep(0)
 
     pg.quit()
+
 
 asyncio.run(main())
