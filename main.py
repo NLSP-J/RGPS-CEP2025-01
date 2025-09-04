@@ -142,12 +142,14 @@ def get_player_name():
 
 
 # ---------------- MAIN ----------------
-player_name = get_player_name()
-game = reset_game()
 running = True
 
 async def main():
+    player_name = get_player_name()
+    game = reset_game()
+    
     global running
+    
     while running:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -225,3 +227,4 @@ async def main():
 
 
 asyncio.run(main())
+
