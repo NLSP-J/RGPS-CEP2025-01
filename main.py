@@ -128,7 +128,6 @@ async def main():
             screen.fill(WHITE)
             text = input_font.render(f"Enter Your Name: {player.name}", True, BLACK)
             screen.blit(text, (WIN_WIDTH // 2 - 200, WIN_HEIGHT // 2))
-            pg.display.flip()
             for event in pg.event.get():
                 if event.type == pg.TEXTINPUT and len(player.name) < 10:
                     player.name += event.text
@@ -137,7 +136,6 @@ async def main():
                         game_state = 2
                     elif event.key == pg.K_BACKSPACE:
                         player.name = player.name[:-1]
-            await asyncio.sleep(0)
 
 
         if game_state == 2:
@@ -209,11 +207,12 @@ async def main():
                 text2 = font.render("Press any key to exit", True, RED)
                 screen.blit(text2, (WIN_WIDTH // 2 - 140, WIN_HEIGHT // 2 + 200))
 
-            pg.display.flip()
-            clock.tick(30)
-            await asyncio.sleep(0)
+        pg.display.flip()
+        clock.tick(30)
+        await asyncio.sleep(0)
 
     pg.quit()
 
 asyncio.run(main())
+
 
